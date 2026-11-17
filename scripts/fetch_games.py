@@ -5,6 +5,8 @@ Game list comes from the Open Cloud API key (ROBLOX_API_KEY):
   2. public games of the user and of every group the user owns (games.roblox.com)  -> merged in
   3. GET apis.roblox.com/cloud/v2/universes/{id}  -> visibility; only PUBLIC games are kept (configurable)
 Live numbers (playing, visits, favorites) and images come from the public Roblox web APIs.
+The browser refetches playing, visits and favorites on each page load (assets/site.js).
+The counts written here are the fallback when that request fails.
 The key is only read here, at build time; it never reaches the browser.
 """
 import json

@@ -36,6 +36,98 @@
     });
   }
 
+  // games.roblox.com sends no CORS header, so a page on GitHub Pages cannot read it.
+  // games.roproxy.com returns the same /v1/games JSON (playing, visits, favoritedCount)
+  // with Access-Control-Allow-Origin: *. One request covers every game. On failure
+  // the page keeps the counts stored in data/games.js.
+  var STATS_URL = "https://games.roproxy.com/v1/games?universeIds=";
+  var STATS_TIMEOUT = 6000;
+
+  function asNumber(v) {
+    if (typeof v === "string" && v.trim() !== "") v = Number(v);
+    return typeof v === "number" && isFinite(v) ? v : null;
+  }
+  function sumOf(games, key) {
+    var n = 0;
+    for (var i = 0; i < games.length; i++) n += games[i][key] || 0;
+    return n;
+  }
+  function statsLine(data) {
+    if (data.statsLive) return "Playing, visits and favorites from Roblox at " + stamp(data.statsFetchedAt) + ".";
+    if (data.updatedAt) return "Saved playing, visits and favorites from " + stamp(data.updatedAt) + ". Live counts did not load.";
+    return "Saved playing, visits and favorites. Live counts did not load.";
+  }
+  function fetchStatsChunk(ids) {
+    var ctrl = typeof AbortController === "function" ? new AbortController() : null;
+    var timer;
+    var timed = new Promise(function (_, reject) {
+      timer = setTimeout(function () {
+        if (ctrl) ctrl.abort();
+        reject(new Error("stats timeout"));
+      }, STATS_TIMEOUT);
+    });
+    var opts = { cache: "no-store" };
+    if (ctrl) opts.signal = ctrl.signal;
+    var req = fetch(STATS_URL + ids.join(","), opts).then(function (r) {
+      if (!r.ok) throw new Error("stats HTTP " + r.status);
+      return r.json();
+    }).then(function (body) {
+      if (!body || !Array.isArray(body.data)) throw new Error("stats payload");
+      return body.data;
+    });
+    req.then(function () { clearTimeout(timer); }, function () { clearTimeout(timer); });
+    timed.catch(function () {});
+    return Promise.race([req, timed]);
+  }
+  function fetchStats(ids) {
+    var chunks = [];
+    for (var i = 0; i < ids.length; i += 50) chunks.push(ids.slice(i, i + 50));
+    return Promise.all(chunks.map(fetchStatsChunk)).then(function (lists) {
+      var rows = [];
+      lists.forEach(function (list) { rows = rows.concat(list); });
+      return rows;
+    });
+  }
+  function applyStats(data, rows) {
+    var byId = {};
+    rows.forEach(function (d) { if (d && d.id != null) byId[String(d.id)] = d; });
+    var games = (data.games || []).map(function (g) { return Object.assign({}, g); });
+    var matched = 0;
+    games.forEach(function (g) {
+      var d = byId[String(g.id)];
+      if (!d) return;
+      var playing = asNumber(d.playing), visits = asNumber(d.visits), favorites = asNumber(d.favoritedCount);
+      if (playing == null || visits == null || favorites == null) return;
+      g.playing = playing;
+      g.visits = visits;
+      g.favorites = favorites;
+      matched++;
+    });
+    if (!games.length || matched !== games.length) throw new Error("stats missed a game");
+    games.sort(function (a, b) { return b.playing - a.playing || b.visits - a.visits; });
+    return Object.assign({}, data, {
+      games: games,
+      totals: Object.assign({}, data.totals, {
+        games: games.length,
+        playing: sumOf(games, "playing"),
+        visits: sumOf(games, "visits"),
+        favorites: sumOf(games, "favorites")
+      }),
+      statsLive: true,
+      statsFetchedAt: new Date().toISOString()
+    });
+  }
+  function withLiveStats(data) {
+    var ids = (data.games || []).map(function (g) { return g.id; }).filter(function (id) { return id != null; });
+    if (!ids.length || typeof fetch !== "function") return Promise.resolve(Object.assign({}, data, { statsLive: false }));
+    return fetchStats(ids).then(function (rows) {
+      return applyStats(data, rows);
+    }).catch(function (err) {
+      console.warn("Live Roblox stats did not load. Showing saved counts.", err);
+      return Object.assign({}, data, { statsLive: false });
+    });
+  }
+
   /* ---------- broken images: Roblox image URLs expire after 180 days ---------- */
   document.addEventListener("error", function (e) {
     var img = e.target;
@@ -177,19 +269,25 @@
         (rest.length ? '<a class="btn btn-line" href="#games">See the other ' + (games.length - 1 === 1 ? "game" : (games.length - 1) + " games") + "</a>" : "")
       : '<a class="btn btn-main" href="#hangout">Follow the studio</a>';
 
+    var fresh = data.statsLive === true;
+    var playingLabel = $("[data-playing-label]");
+    if (playingLabel) playingLabel.textContent = fresh ? "Playing now" : "Playing";
+    var fetched = $("[data-fetched]");
+    if (fetched) fetched.textContent = statsLine(data);
+
     [["playing", t.playing || 0, full], ["visits", t.visits || 0, short], ["favorites", t.favorites || 0, short], ["members", t.members || 0, short]]
       .forEach(function (n) { var el = $('[data-num="' + n[0] + '"]'); if (el) countUp(el, n[1], n[2]); });
 
-    // Top game: most players at the last refresh, or most visits when nobody is on
+    // Top game: most players online, or most visits when nobody is on
     if (!top) {
       $("#spotlight").hidden = true;
       navLink("spotlight", false);
     } else {
       var live = top.playing > 0;
-      $("[data-spot-title]").textContent = live ? "Busiest at the last refresh" : "Most visited";
+      $("[data-spot-title]").textContent = live ? (fresh ? "Busiest right now" : "Busiest game") : "Most visited";
       $("[data-spot-sub]").textContent = live
-        ? "The game with the most players online when the numbers were last pulled from Roblox."
-        : "Nobody was online at the last refresh, so this is the game with the most visits.";
+        ? (fresh ? "The game with the most players online." : "The game that had the most players when these counts were saved.")
+        : (fresh ? "Nobody is playing right now, so this is the game with the most visits." : "Nobody was playing when these counts were saved, so this is the game with the most visits.");
       var pics = (top.gallery && top.gallery.length ? top.gallery : [top.thumbnail]).filter(Boolean);
       var spot = $("[data-spot]");
       spot.innerHTML =
@@ -200,7 +298,7 @@
           }).join("") + "</div>" : "") +
         "</div>" +
         '<div class="spot-info">' +
-          (live ? '<p class="spot-live"><b>' + full(top.playing) + "</b> playing at the last refresh</p>" : "") +
+          (live ? '<p class="spot-live"><b>' + full(top.playing) + "</b> playing</p>" : "") +
           '<h3 class="display">' + esc(top.name) + "</h3>" +
           (top.description ? '<p class="spot-desc" lang="id">' + esc(top.description) + "</p>" : "") +
           '<p class="spot-facts"><span><b>' + full(top.visits) + "</b> visits</span><span><b>" + full(top.favorites) + "</b> favorites</span>" +
@@ -245,6 +343,10 @@
     $("#games").hidden = true;
     navLink("games", false);
     $$("[data-num]").forEach(function (el) { el.textContent = "?"; });
+    var playingLabel = $("[data-playing-label]");
+    if (playingLabel) playingLabel.textContent = "Playing";
+    var fetched = $("[data-fetched]");
+    if (fetched) fetched.textContent = "";
     $("[data-hero-actions]").innerHTML = '<a class="btn btn-main" href="#hangout">Contact the studio</a>';
   }
 
@@ -275,7 +377,7 @@
       });
     });
     $("[data-count]").textContent = games.length === 1 ? "1 public game" : games.length + " public games";
-    $("[data-updated]").textContent = "From Roblox, refreshed " + stamp(data.updatedAt) + ".";
+    $("[data-updated]").textContent = statsLine(data);
     draw("playing");
   }
 
@@ -290,7 +392,7 @@
     fillYear();
     var page = document.body.getAttribute("data-page");
     if (page === "home") initCopy();
-    loadData().then(function (data) {
+    loadData().then(withLiveStats).then(function (data) {
       if (page === "home") renderHome(data); else renderAll(data);
     }).catch(function (err) {
       if (page === "home") homeError(err); else allError(err);

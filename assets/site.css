@@ -119,6 +119,10 @@ button:disabled { cursor: not-allowed; }
 .num-value { font-family: "Lilita One", sans-serif; font-size: clamp(30px, 4vw, 42px); line-height: 1; font-variant-numeric: tabular-nums; }
 .num-key .num-value { color: var(--amber); }
 .num-label { margin-top: 8px; font-size: 14px; font-weight: 600; color: var(--text-2); }
+/* The only clock time on the home page. Ink fill, because 13px text sitting on the
+   screenshot reel drops under 4.5:1. Same ink as the stat tiles, no second border. */
+.fetched { grid-column: 1 / -1; justify-self: start; max-width: 100%; margin: 0; padding: 8px 12px; border-radius: var(--r-ctl); background: var(--ink-2); font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--text-2); }
+.fetched:empty { display: none; }
 
 /* ---------- Section frame ---------- */
 .block { position: relative; padding: 104px 0; }
