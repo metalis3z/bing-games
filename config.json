@@ -1,0 +1,17 @@
+{
+  "userId": 4719719597,
+  "groupIds": [895905903, 711248328, 1083339918],
+  "detectOwnedGroups": true,
+  "publicOnly": true,
+  "excludeUniverseIds": [],
+  "studio": {
+    "name": "Bing",
+    "suffix": "Games",
+    "mainGroupId": 895905903
+  },
+  "contact": {
+    "discord": "vcatcat",
+    "discordInvite": "",
+    "email": ""
+  }
+}

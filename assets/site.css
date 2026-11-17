@@ -1,0 +1,231 @@
+/*
+  Bing Games studio site
+  Why these choices (R-31):
+  - Ink + cream + amber: ink and cream come from the mascot sticker (black hair/shirt, cream sticker outline).
+    Amber is the one accent: the primary action and the key number. Elsewhere it only marks state (focus, pressed, hover).
+  - Dark base: the hero is a wall of game screenshots, which read best on ink; the mascot is drawn for dark too.
+  - Lilita One for display: the chunky rounded cut matches the Roblox-cartoon mascot. Plus Jakarta Sans for text:
+    an Indonesian-made typeface for an Indonesian studio, and very readable at small sizes.
+  - Identity motif: the "sticker" (cream outline + hard ink offset shadow). Three places only: the logo,
+    the top-game card and the primary button.
+  - Radius: 12px for controls, 20px for cards, round for avatars. Nothing else.
+  - Motion: the hero reel drifts slowly (owner choice: no pause control; stops under reduced motion) and the numbers
+    count up once. Everything else moves only on hover or tap.
+*/
+:root {
+  --ink: #0e0c12;
+  --ink-2: #17141d;
+  --ink-3: #221e2a;
+  --cream: #fff6e8;
+  --amber: #ffb830;
+  --text: #fff6e8;
+  --text-2: rgba(255, 246, 232, .74);
+  --text-3: rgba(255, 246, 232, .6);
+  --line: rgba(255, 246, 232, .12);
+  --r-ctl: 12px;
+  --r-card: 20px;
+  --sticker: 0 0 0 3px var(--cream), 5px 6px 0 3px var(--ink);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { background: var(--ink); color: var(--text); font-family: "Plus Jakarta Sans", system-ui, "Segoe UI", sans-serif; line-height: 1.55; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+a[href], button:not(:disabled) { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 640px) { .wrap { padding: 0 28px; } }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+.display { font-family: "Lilita One", "Plus Jakarta Sans", sans-serif; font-weight: 400; letter-spacing: .01em; line-height: .95; }
+.skip { position: absolute; left: 16px; top: -60px; z-index: 100; padding: 10px 16px; border-radius: var(--r-ctl); background: var(--amber); color: var(--ink); font-weight: 700; }
+.skip:focus { top: 12px; }
+
+/* ---------- Buttons ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; border: 0; border-radius: var(--r-ctl); font-size: 15px; font-weight: 700; white-space: nowrap; transition: transform .2s, box-shadow .2s, background .2s; }
+.btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+.btn-main { background: var(--amber); color: var(--ink); box-shadow: 4px 4px 0 var(--cream); }
+.btn-main:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--cream); }
+.btn-main:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--cream); }
+.btn-line { background: rgba(14, 12, 18, .7); color: var(--cream); box-shadow: inset 0 0 0 2px rgba(255, 246, 232, .55); }
+.btn-line:hover { box-shadow: inset 0 0 0 2px var(--cream); background: var(--ink); }
+.btn-line:active { transform: translateY(1px); }
+
+/* ---------- Nav ---------- */
+.nav { position: fixed; inset: 0 0 auto 0; z-index: 50; background: linear-gradient(rgba(14, 12, 18, .9), rgba(14, 12, 18, 0)); transition: background .3s, box-shadow .3s; }
+.nav.solid { background: rgba(14, 12, 18, .94); box-shadow: 0 1px 0 var(--line); }
+.nav-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 72px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; }
+.brand img { width: 46px; height: 46px; transform: rotate(-6deg); transition: transform .25s; }
+.brand:hover img { transform: rotate(4deg) scale(1.06); }
+.brand b { font-family: "Lilita One", sans-serif; font-weight: 400; font-size: 24px; letter-spacing: .01em; }
+.nav-links { display: flex; align-items: center; gap: 6px; }
+.nav-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: var(--r-ctl); font-size: 15px; font-weight: 600; color: var(--text-2); transition: color .2s, background .2s; }
+.nav-links a:hover { color: var(--cream); background: rgba(255, 246, 232, .08); }
+.nav-links a:active { background: rgba(255, 246, 232, .14); }
+.nav-links a[aria-current="page"] { color: var(--cream); box-shadow: inset 0 -3px 0 var(--amber); }
+.menu-btn { display: none; width: 46px; height: 46px; border: 0; border-radius: var(--r-ctl); background: rgba(255, 246, 232, .08); align-items: center; justify-content: center; }
+.menu-btn:hover { background: rgba(255, 246, 232, .14); }
+.menu-btn svg { width: 24px; height: 24px; }
+@media (max-width: 760px) {
+  .menu-btn { display: inline-flex; }
+  .nav-links { position: absolute; left: 12px; right: 12px; top: 72px; flex-direction: column; align-items: stretch; gap: 2px; padding: 8px; border-radius: var(--r-card); background: var(--ink-2); box-shadow: 0 0 0 2px var(--line), 0 18px 40px rgba(0, 0, 0, .5); opacity: 0; visibility: hidden; transform: translateY(-8px); transition: opacity .2s, transform .2s, visibility .2s; }
+  .nav-links.open { opacity: 1; visibility: visible; transform: none; }
+  .nav-links a { padding: 0 16px; min-height: 48px; font-size: 16px; }
+}
+
+/* ---------- Hero ---------- */
+.hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; overflow: hidden; isolation: isolate; }
+.mosaic-wrap { position: absolute; inset: 0; z-index: -2; overflow: hidden; }
+/* Moving reel of game screenshots behind the whole hero.
+   Owner override (2026-11-16): the reel runs without a pause control, against R-39's ">5s needs pause".
+   It still stops for visitors who ask their system for reduced motion (see the media query at the end).
+   Each column holds its pictures twice (period L); it slides from +25% to -25% of its own height (= one L),
+   so it always covers the hero and the loop has no seam. Columns run in opposite directions, out of phase. */
+.mosaic { position: absolute; left: 50%; top: 50%; width: 170vmax; height: 170vmax; display: flex; align-items: center; gap: 18px; justify-content: center; transform: translate(-50%, -50%) rotate(9deg); }
+.mosaic-col { display: flex; flex-direction: column; gap: 18px; flex: 0 0 clamp(240px, 26vw, 400px); animation: reel 110s linear infinite; will-change: transform; }
+.mosaic-col:nth-child(even) { animation-direction: reverse; animation-duration: 130s; }
+.mosaic-col:nth-child(2) { animation-delay: -40s; } .mosaic-col:nth-child(3) { animation-delay: -75s; }
+.mosaic-col:nth-child(4) { animation-delay: -20s; } .mosaic-col:nth-child(5) { animation-delay: -55s; }
+.mosaic-col:nth-child(6) { animation-delay: -90s; } .mosaic-col:nth-child(7) { animation-delay: -30s; }
+@keyframes reel { from { transform: translateY(25%); } to { transform: translateY(-25%); } }
+.mosaic-col img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: var(--r-card); background: var(--ink-3); opacity: 0; transition: opacity .8s ease; }
+.mosaic-col img.ok { opacity: 1; }
+/* One even shade over the whole reel (.62 ink): bright enough to see every game, dark enough that the cream copy
+   stays above 4.5:1 over a white screenshot. Fades to ink at the bottom so the hero runs into the page. */
+.hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background:
+  linear-gradient(180deg, rgba(14, 12, 18, .62) 0%, rgba(14, 12, 18, .62) 72%, var(--ink) 100%); }
+
+.hero-grid { display: grid; gap: 32px; align-items: center; padding-top: 112px; padding-bottom: 40px; }
+@media (min-width: 900px) { .hero-grid { grid-template-columns: 1.15fr .85fr; padding-top: 120px; } }
+/* Wordmark as a sticker (the logo motif): thick ink outline drawn under the fill + hard ink drop,
+   so the letters separate from any screenshot behind them */
+.hero h1 { font-size: clamp(64px, 12vw, 148px); margin-bottom: 20px; max-width: 6ch; color: var(--cream);
+  -webkit-text-stroke: .1em var(--ink); paint-order: stroke fill;
+  text-shadow: .045em .055em 0 var(--ink), 0 0 .3em rgba(14, 12, 18, .55); }
+.hero-copy { max-width: 480px; font-size: clamp(17px, 2vw, 19px); font-weight: 600; color: var(--cream); margin-bottom: 32px; text-shadow: 0 1px 10px rgba(14, 12, 18, .8); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
+.mascot { position: relative; justify-self: center; width: min(78vw, 400px); }
+.mascot img { width: 100%; height: auto; transform: rotate(5deg); }
+@media (max-width: 899px) { .mascot { order: -1; width: min(48vw, 220px); justify-self: start; } }
+
+.numbers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding-bottom: 72px; }
+@media (min-width: 760px) { .numbers { grid-template-columns: repeat(4, 1fr); gap: 18px; } }
+.num { padding: 16px 18px; border-radius: var(--r-card); background: var(--ink-2); box-shadow: 0 0 0 2px var(--line); }
+.num-value { font-family: "Lilita One", sans-serif; font-size: clamp(30px, 4vw, 42px); line-height: 1; font-variant-numeric: tabular-nums; }
+.num-key .num-value { color: var(--amber); }
+.num-label { margin-top: 8px; font-size: 14px; font-weight: 600; color: var(--text-2); }
+
+/* ---------- Section frame ---------- */
+.block { position: relative; padding: 104px 0; }
+.block-tight { padding-top: 40px; }
+.h2 { font-size: clamp(40px, 6.4vw, 72px); margin-bottom: 14px; }
+.sub { font-size: 18px; color: var(--text-2); max-width: 560px; }
+
+/* ---------- Top game ---------- */
+.spot-head { margin-bottom: 40px; }
+.spot { display: grid; gap: 28px; padding: 18px; border-radius: var(--r-card); background: var(--ink-2); box-shadow: var(--sticker); }
+@media (min-width: 900px) { .spot { grid-template-columns: 1.35fr 1fr; padding: 22px; gap: 36px; } }
+.spot-media { min-width: 0; }
+.spot-main { position: relative; aspect-ratio: 16 / 9; border-radius: var(--r-ctl); overflow: hidden; background: var(--ink-3); }
+.spot-main img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .3s; }
+.spot-thumbs { display: flex; gap: 10px; margin-top: 12px; overflow-x: auto; padding: 4px 2px 6px; scrollbar-width: thin; }
+.spot-thumbs button { flex: 0 0 auto; width: 96px; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: var(--r-ctl); overflow: hidden; opacity: .55; box-shadow: 0 0 0 2px transparent; transition: opacity .2s, box-shadow .2s; background: var(--ink-3); }
+.spot-thumbs button img { width: 100%; height: 100%; object-fit: cover; }
+.spot-thumbs button:hover { opacity: .85; }
+.spot-thumbs button:active { opacity: 1; }
+.spot-thumbs button[aria-pressed="true"] { opacity: 1; box-shadow: 0 0 0 3px var(--amber); }
+.spot-info { display: flex; flex-direction: column; padding: 6px 4px 8px; min-width: 0; }
+.spot-live { font-size: 15px; color: var(--text-2); margin-bottom: 12px; }
+.spot-live b { color: var(--cream); font-weight: 800; }
+.spot-info h3 { font-size: clamp(34px, 4.6vw, 52px); margin-bottom: 14px; overflow-wrap: anywhere; }
+.spot-desc { color: var(--text-2); font-size: 16px; margin-bottom: 22px; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.spot-facts { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-bottom: 26px; font-size: 15px; color: var(--text-2); }
+.spot-facts b { color: var(--cream); font-weight: 800; }
+.spot-info .btn { align-self: flex-start; margin-top: auto; }
+
+/* Missing image: the game name on an ink block instead of a broken icon */
+.img-missing { display: grid; place-items: center; padding: 16px; text-align: center; }
+.img-missing::after { content: attr(data-name); font-family: "Lilita One", sans-serif; font-size: 22px; color: var(--text-3); }
+
+/* ---------- Game list ---------- */
+.games { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+.game { display: flex; flex-direction: column; border-radius: var(--r-card); background: var(--ink-2); box-shadow: 0 0 0 2px var(--line); overflow: hidden; transition: transform .25s, box-shadow .25s; }
+.game:hover { transform: translateY(-4px); box-shadow: 0 0 0 2px rgba(255, 246, 232, .45); }
+.game:active { transform: translateY(-1px); }
+.game:focus-visible { outline-offset: 4px; }
+.game-img { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--ink-3); }
+.game-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s; }
+.game:hover .game-img img { transform: scale(1.05); }
+.game-body { position: relative; padding: 36px 16px 18px; }
+.game-body .game-icon { position: absolute; left: 14px; top: -28px; width: 56px; height: 56px; border-radius: var(--r-ctl); box-shadow: 0 0 0 3px var(--ink-2); background: var(--ink-3); object-fit: cover; }
+.game-body h2, .game-body h3 { font-size: 18px; font-weight: 800; line-height: 1.3; margin-bottom: 4px; overflow-wrap: anywhere; }
+.game-genre { font-size: 13px; color: var(--text-3); margin-bottom: 12px; }
+.game-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14px; color: var(--text-2); }
+.game-stats b { color: var(--cream); font-weight: 700; }
+.more { display: flex; justify-content: center; margin-top: 40px; }
+.more:empty { display: none; }
+
+.note { padding: 28px; border-radius: var(--r-card); background: var(--ink-2); box-shadow: 0 0 0 2px var(--line); color: var(--text-2); }
+.note b { color: var(--cream); }
+.note a { color: var(--cream); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.note a:hover { color: var(--amber); }
+.skel { border-radius: var(--r-card); background: linear-gradient(90deg, var(--ink-2) 0%, var(--ink-3) 50%, var(--ink-2) 100%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; min-height: 260px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ---------- Studio story ---------- */
+.story { display: grid; gap: 24px; align-items: start; }
+@media (min-width: 900px) { .story { grid-template-columns: .9fr 1.1fr; gap: 64px; } }
+.story-text p { font-size: 18px; color: var(--text-2); margin-bottom: 18px; max-width: 600px; }
+.story-text p b { color: var(--cream); }
+
+/* ---------- Community / contact ---------- */
+.hangout { display: grid; gap: 24px; }
+@media (min-width: 900px) { .hangout { grid-template-columns: 1fr 1fr; align-items: stretch; } }
+.panel { position: relative; padding: 30px; border-radius: var(--r-card); background: var(--ink-2); box-shadow: 0 0 0 2px var(--line); }
+.panel h3 { font-size: 30px; margin-bottom: 8px; }
+.panel > p { color: var(--text-2); margin-bottom: 24px; }
+.dc-user { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; padding: 14px; border-radius: var(--r-ctl); background: var(--ink-3); }
+.dc-user svg { width: 34px; height: 34px; flex-shrink: 0; }
+.dc-user .who { font-size: 20px; font-weight: 800; overflow-wrap: anywhere; }
+.dc-user .what { font-size: 14px; color: var(--text-2); }
+.panel-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.copy-status { min-height: 22px; margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--cream); }
+.groups { list-style: none; display: grid; gap: 10px; }
+.groups a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 12px 16px; border-radius: var(--r-ctl); background: rgba(255, 246, 232, .05); box-shadow: inset 0 0 0 1px var(--line); transition: background .2s, box-shadow .2s; }
+.groups a:hover { background: rgba(255, 246, 232, .09); box-shadow: inset 0 0 0 2px var(--amber); }
+.groups a:active { background: rgba(255, 246, 232, .14); }
+.groups .g-name { font-weight: 700; overflow-wrap: anywhere; }
+.groups .g-count { font-size: 14px; color: var(--text-2); white-space: nowrap; }
+
+/* ---------- Footer ---------- */
+.footer { padding: 28px 0 36px; border-top: 2px solid var(--line); }
+.footer-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; font-size: 14px; color: var(--text-2); }
+.footer-brand { display: flex; align-items: center; gap: 10px; }
+.footer-brand img { width: 32px; height: 32px; }
+.footer-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; margin-right: -12px; border-radius: var(--r-ctl); text-decoration: underline; text-underline-offset: 3px; }
+.footer-link:hover { color: var(--cream); background: rgba(255, 246, 232, .06); }
+
+/* ---------- Games page ---------- */
+.page-top { padding: 140px 0 36px; }
+.page-top .h2 { font-size: clamp(48px, 8vw, 96px); }
+.sortbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 28px; }
+.sortbar span { font-size: 14px; font-weight: 600; color: var(--text-2); margin-right: 4px; }
+.sortbar button { min-height: 44px; padding: 0 16px; border: 0; border-radius: var(--r-ctl); background: var(--ink-2); box-shadow: inset 0 0 0 2px var(--line); font-size: 14px; font-weight: 700; color: var(--text-2); transition: color .2s, box-shadow .2s, background .2s; }
+.sortbar button:hover { color: var(--cream); box-shadow: inset 0 0 0 2px rgba(255, 246, 232, .35); }
+.sortbar button[aria-pressed="true"] { background: var(--amber); color: var(--ink); box-shadow: none; }
+.updated { margin-top: 14px; font-size: 13px; color: var(--text-3); }
+
+@media (max-width: 480px) {
+  .block { padding: 76px 0; }
+  .panel { padding: 22px; }
+  .hero-actions .btn { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .mosaic-col { animation: none !important; }
+}
